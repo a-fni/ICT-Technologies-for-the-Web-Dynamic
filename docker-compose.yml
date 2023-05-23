@@ -1,0 +1,25 @@
+# Use root/example as user/password credentials
+version: "3.1"
+
+services:
+    db:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: astar@[7)fulcrum
+        ports:
+            - "3306:3306"
+        volumes:
+            - ./mysql:/var/lib/mysql
+
+    tomcat:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        volumes:
+            - ./target:/opt/tomcat/webapps
+        depends_on:
+            - db

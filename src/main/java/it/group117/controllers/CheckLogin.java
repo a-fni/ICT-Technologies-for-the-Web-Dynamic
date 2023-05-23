@@ -1,0 +1,120 @@
+package it.group117.controllers;
+
+import it.group117.beans.User;
+import it.group117.dao.UserDAO;
+import it.group117.utils.ConnectionHandler;
+
+import java.io.IOException;
+import java.io.Serial;
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import it.group117.utils.TemplateHandler;
+import org.apache.commons.text.StringEscapeUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.WebContext;
+
+/**
+ * Servlet implementation class Login
+ */
+@WebServlet(name = "CheckLogin", value = "/login")
+public class CheckLogin extends HttpServlet {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    // Connection to DB attribute and templating engine
+    private Connection connection;
+    private TemplateEngine templateEngine;
+
+
+    /** @see HttpServlet#HttpServlet() */
+    public CheckLogin() {
+        super();
+    }
+
+
+    /** @see HttpServlet#init() */
+    @Override
+    public void init() throws ServletException {
+        // Creating a DB connection and templating engine
+        this.connection     = ConnectionHandler.getConnection(getServletContext());
+        this.templateEngine = TemplateHandler.getTemplateEngine(getServletContext());
+    }
+
+    /** @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response) */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Marshalling toward post request
+        doPost(request, response);
+    }
+
+    /** @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Fetching form parameters
+        String username = StringEscapeUtils.escapeJava(request.getParameter("username"));
+        String password = StringEscapeUtils.escapeJava(request.getParameter("password"));
+
+        // Checking if parameters have actually arrived
+        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+            loginFail(request, response, "Username or password missing...");
+            return;
+        }
+
+        // Accessing user's database
+        User user;
+        try {
+            UserDAO userDao = new UserDAO(this.connection);
+            user = userDao.checkCredentials(username, password);
+        } catch (SQLException ex) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while checking credentials: " + ex);
+            return;
+        }
+
+        // Checking a the user has been found or not
+        if (user == null) {
+            loginFail(request, response, "Wrong username or password");
+            return;
+        }
+
+        // If we reached this point, creating a session and redirecting user to home page
+        request.getSession().setAttribute("user", user);
+        response.sendRedirect(getServletContext().getContextPath() + "/home");
+    }
+
+    /** @see HttpServlet#destroy() */
+    @Override
+    public void destroy() {
+        // Trying to close connection
+        try {
+            ConnectionHandler.closeConnection(connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Method in charge of handling invalid login credentials scenario
+     *
+     * @param request HttpServletRequest object
+     * @param response HttpServletResponse object
+     * @param message error message to show the user
+     * @throws IOException if fails to get writer for response
+     */
+    private void loginFail(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
+        // Getting context from request and response
+        final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
+
+        // Setting error message and forwarding to home page
+        ctx.setVariable("message", message);
+        templateEngine.process("/index.html", ctx, response.getWriter());
+    }
+
+}
