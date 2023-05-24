@@ -1,10 +1,9 @@
-import { createCategoryTree } from "./categoryTree.js";
+import {createCategoryTree} from "./categoryTree.js";
 
 window.addEventListener("load", () => {
   // restore username from session storage
   const userspan = document.querySelector("#username");
-  const username = localStorage.getItem("username");
-  userspan.textContent = username;
+  userspan.textContent = localStorage.getItem("username");
 
   const createForm = document.querySelector("#createCategory");
   createForm.addEventListener("submit", async event => {
@@ -18,8 +17,12 @@ window.addEventListener("load", () => {
       body: new URLSearchParams(new FormData(createForm)),
     });
     const data = await res.json();
-    if (data.success) fetchCategories();
-    else alert(data.message);
+    if (data.success) {
+      createForm.reset();
+      void fetchCategories();
+    } else {
+      alert(data.message);
+    }
     console.log("Parsed response", data);
   });
 });

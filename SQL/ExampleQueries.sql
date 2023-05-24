@@ -65,3 +65,11 @@ SELECT * FROM tiw.category c WHERE c.code LIKE CONCAT(@newSubtreeRoot, "%");
 -- For reference: INSTR: INdex of STRing
 
 -- NOTICE: Works also when @destinationParentCode is empty (= copy subtree to root of hierchy)
+
+-- Get full category tree and, for each node, if it's parentable
+SELECT code, name, (
+	SELECT COUNT(*)
+	FROM tiw.category AS inner_category
+    WHERE inner_category.code LIKE CONCAT(outer_category.code, "_")
+) < 9 AS parentable
+FROM tiw.category AS outer_category ORDER BY code

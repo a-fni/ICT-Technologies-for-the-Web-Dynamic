@@ -24,7 +24,7 @@ export function createDivFromSubtree(subtree, tree) {
   // create the name span
   const span = document.createElement("span");
   span.classList.add("category-name");
-  span.appendChild(document.createTextNode(subtree.name));
+  span.innerText = `${subtree.code} - ${subtree.name}`;
   const input = document.createElement("input");
   input.type = "text";
   input.name = "name";
@@ -40,7 +40,8 @@ export function createDivFromSubtree(subtree, tree) {
     input.focus();
   });
   input.addEventListener("blur", () => {
-    // TODO: Make call
+    span.style.display = "block";
+    input.style.display = "none";
   });
 
   // get the children
