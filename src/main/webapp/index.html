@@ -1,49 +1,47 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <!-- Page metadata -->
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <head>
+    <!-- Page metadata -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <!-- Document setup -->
-        <link rel="stylesheet" href="./style.css" th:href="@{./style.css}" />
-        <title>Category manager</title>
-    </head>
-    <body>
-        <!-- Main container -->
-        <div class="app">
+    <!-- Document setup -->
+    <script src="./login.js"></script>
+    <link rel="stylesheet" href="./style.css" th:href="@{./style.css}" />
+    <title>Category manager</title>
+  </head>
+  <body>
+    <!-- Main container -->
+    <div class="app">
+      <!-- Title -->
+      <h1>Image Categories</h1>
+      <!-- END: Title -->
 
-            <!-- Title -->
-            <h1>Image Categories</h1>
-            <!-- END: Title -->
+      <!-- Login form -->
+      <div class="center-wrap">
+        <form action="login" method="post" id="login">
+          <h2>Login</h2>
 
-            <!-- Login form -->
-            <div class="center-wrap">
-                <form action="login"
-                      method="post"
-                      id="login"
-                >
-                    <h2>Login</h2>
+          <input
+            type="text"
+            placeholder="Enter Username"
+            name="username"
+            required
+          />
 
-                    <input type="text"
-                           placeholder="Enter Username"
-                           name="username"
-                           required
-                    />
+          <input
+            type="password"
+            placeholder="Enter Password"
+            name="password"
+            required
+          />
 
-                    <input type="password"
-                           placeholder="Enter Password"
-                           name="password"
-                           required
-                    />
-
-                    <p th:text="${message}"></p>
-                    <button type="submit">Login</button>
-                </form>
-            </div>
-            <!-- END: Login form -->
-
-        </div>
-        <!-- END: Main container -->
-    </body>
+          <p th:text="${message}"></p>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+      <!-- END: Login form -->
+    </div>
+    <!-- END: Main container -->
+  </body>
 </html>

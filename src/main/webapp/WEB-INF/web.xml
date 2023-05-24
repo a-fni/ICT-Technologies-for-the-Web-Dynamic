@@ -9,13 +9,14 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>style.css</welcome-file>
+    <welcome-file>index.js</welcome-file>
   </welcome-file-list>
 
   <!-- Database connection information -->
   <display-name>TIWProject</display-name>
   <context-param>
     <param-name>dbUrl</param-name>
-    <param-value>jdbc:mysql://localhost:3306/tiw</param-value>
+    <param-value>jdbc:mysql://host.docker.internal:3306/tiw</param-value>
   </context-param>
   <context-param>
     <param-name>dbUser</param-name>
