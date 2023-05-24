@@ -10,8 +10,8 @@ window.addEventListener("load", () => {
     console.log("Parsed reposnse", data);
 
     if (data.success) {
-      window.location.href = "index.html";
       sessionStorage.setItem("username", data.username);
+      window.location.href = "index.html";
     } else {
       const error = document.querySelector("#error-message");
       error.textContent = data.message;
