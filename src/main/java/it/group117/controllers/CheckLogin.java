@@ -1,5 +1,8 @@
 package it.group117.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import it.group117.beans.User;
 import it.group117.dao.UserDAO;
 import it.group117.utils.ConnectionHandler;
@@ -14,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import it.group117.utils.JsonResponse;
 import it.group117.utils.TemplateHandler;
 import org.apache.commons.text.StringEscapeUtils;
 import org.thymeleaf.TemplateEngine;
@@ -30,7 +34,6 @@ public class CheckLogin extends HttpServlet {
 
     // Connection to DB attribute and templating engine
     private Connection connection;
-    private TemplateEngine templateEngine;
 
 
     /** @see HttpServlet#HttpServlet() */
@@ -44,7 +47,6 @@ public class CheckLogin extends HttpServlet {
     public void init() throws ServletException {
         // Creating a DB connection and templating engine
         this.connection     = ConnectionHandler.getConnection(getServletContext());
-        this.templateEngine = TemplateHandler.getTemplateEngine(getServletContext());
     }
 
     /** @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response) */
@@ -61,9 +63,15 @@ public class CheckLogin extends HttpServlet {
         String username = StringEscapeUtils.escapeJava(request.getParameter("username"));
         String password = StringEscapeUtils.escapeJava(request.getParameter("password"));
 
+        // Instantiating a JsonObject for responses
+        JsonObject jsonResponse = new JsonObject();
+
         // Checking if parameters have actually arrived
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
-            loginFail(request, response, "Username or password missing...");
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "Username or password missing!");
+            jsonResponse.addProperty("username", "");
+            JsonResponse.sendJsonResponse(response, jsonResponse);
             return;
         }
 
@@ -73,19 +81,25 @@ public class CheckLogin extends HttpServlet {
             UserDAO userDao = new UserDAO(this.connection);
             user = userDao.checkCredentials(username, password);
         } catch (SQLException ex) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while checking credentials: " + ex);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while checking credentials.");
             return;
         }
 
         // Checking a the user has been found or not
         if (user == null) {
-            loginFail(request, response, "Wrong username or password");
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "Wrong username or password");
+            jsonResponse.addProperty("username", "");
+            JsonResponse.sendJsonResponse(response, jsonResponse);
             return;
         }
 
         // If we reached this point, creating a session and redirecting user to home page
         request.getSession().setAttribute("user", user);
-        response.sendRedirect(getServletContext().getContextPath() + "/home");
+        jsonResponse.addProperty("success", false);
+        jsonResponse.addProperty("message", "Wrong username or password");
+        jsonResponse.addProperty("username", user.getUsername());
+        JsonResponse.sendJsonResponse(response, jsonResponse);
     }
 
     /** @see HttpServlet#destroy() */
@@ -97,24 +111,6 @@ public class CheckLogin extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-
-    /**
-     * Method in charge of handling invalid login credentials scenario
-     *
-     * @param request HttpServletRequest object
-     * @param response HttpServletResponse object
-     * @param message error message to show the user
-     * @throws IOException if fails to get writer for response
-     */
-    private void loginFail(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
-        // Getting context from request and response
-        final WebContext ctx = new WebContext(request, response, getServletContext(), request.getLocale());
-
-        // Setting error message and forwarding to home page
-        ctx.setVariable("message", message);
-        templateEngine.process("/index.html", ctx, response.getWriter());
     }
 
 }
