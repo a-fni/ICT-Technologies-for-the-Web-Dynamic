@@ -35,9 +35,7 @@ public class LoginChecker implements Filter {
 
         HttpSession session = req.getSession();
         if (session.isNew() || session.getAttribute("user") == null) {
-            res.setStatus(403);
-            res.setHeader("Location", req.getServletContext().getContextPath() + "/index.html");
-            System.out.println("login checker FAILED!");
+            res.sendRedirect(req.getServletContext().getContextPath());
             return;
         }
 
