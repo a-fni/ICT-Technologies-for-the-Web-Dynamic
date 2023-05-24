@@ -1,8 +1,8 @@
 window.addEventListener("load", () => {
+  // Login event handling
   const loginForm = document.querySelector("#login");
   loginForm.addEventListener("submit", async event => {
     event.preventDefault();
-    console.log("Login form submitted");
 
     const res = await fetch("login", {
       method: "POST",
@@ -11,8 +11,10 @@ window.addEventListener("load", () => {
       },
       body: new URLSearchParams(new FormData(loginForm)),
     });
+
+    // Handling response
     const data = await res.json();
-    console.log("Parsed response", data);
+    // console.log("Parsed response", data);  // DEBUG ONLY
 
     if (data.success) {
       localStorage.setItem("username", data.username);

@@ -79,45 +79,6 @@ public class CategoryDAO {
     }
 
     /**
-     * Method in charge of returning all nodes of the category tree who are
-     * available as potential parents for new categories
-     *
-     * @return LinkedList of nodes who are potential valid parents
-     * @throws SQLException if the query fails
-     */
-    public LinkedList<Category> getParentAble() throws SQLException {
-        // Selecting all categories, ordered by their code
-        String query = """
-                SELECT code FROM tiw.category c
-                WHERE (
-                    SELECT COUNT(*) FROM tiw.category cc
-                    WHERE cc.code LIKE CONCAT(c.code, '_')
-                ) < 9 ORDER BY code""";
-
-        // Setting up query and running it
-        PreparedStatement pStatement = connection.prepareStatement(query);
-        ResultSet result = pStatement.executeQuery();
-
-        // Checking that we didn't get an empty result
-        LinkedList<Category> parentAble = new LinkedList<>();
-        if (result.isBeforeFirst()) {
-            // Constructing our result linked-list
-            result.next();
-            while (!result.isAfterLast()) {
-                Category node = new Category();
-
-                node.setCode(result.getString("code"));
-
-                parentAble.add(node);
-                result.next();
-            }
-        }
-
-        // Returning final result as ordered linked-list
-        return parentAble;
-    }
-
-    /**
      * Method in charge of adding a new query to the category tree
      *
      * @param parentCode code of the parent node selected
@@ -149,6 +110,31 @@ public class CategoryDAO {
         // We simply return the full-code of the new category
         pStatement.execute();
         return fullCode;
+    }
+
+    /**
+     * Method in charge of modifying a categories name
+     *
+     * @param code code of the category we want to rename
+     * @param newName new name to assign to the category
+     * @return whether the operation is successful
+     * @throws SQLException if the update fails
+     */
+    public boolean renameCategory(String code, String newName) throws SQLException {
+        // Checking selected node exists
+        if (!doesCategoryExist(code))
+            return false;
+
+        String update = "UPDATE tiw.category SET name = ? WHERE code = ?";
+
+        // Setting up statement and executing it
+        PreparedStatement pStatement = connection.prepareStatement(update);
+        pStatement.setString(1, newName);
+        pStatement.setString(2, code);
+
+        // We simply return the full-code of the new category
+        pStatement.executeUpdate();
+        return true;
     }
 
     /**

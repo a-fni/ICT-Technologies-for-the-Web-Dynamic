@@ -2,7 +2,6 @@ package it.group117.controllers;
 
 
 import com.google.gson.JsonObject;
-
 import it.group117.dao.CategoryDAO;
 import it.group117.utils.ConnectionHandler;
 import it.group117.utils.JsonResponse;
@@ -20,10 +19,10 @@ import java.sql.SQLException;
 
 
 /**
- * Servlet implementation class CreateCategory
+ * Servlet implementation class RenameCategory
  */
-@WebServlet(name = "CreateCategory", value = "/createCategory")
-public class CreateCategory extends HttpServlet {
+@WebServlet(name = "RenameCategory", value = "/renameCategory")
+public class RenameCategory  extends HttpServlet {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -33,7 +32,7 @@ public class CreateCategory extends HttpServlet {
 
 
     /** @see HttpServlet#HttpServlet() */
-    public CreateCategory() {
+    public RenameCategory() {
         super();
     }
 
@@ -56,14 +55,14 @@ public class CreateCategory extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Fetching form parameters
-        String name = StringEscapeUtils.escapeJava(request.getParameter("name"));
-        String parent = StringEscapeUtils.escapeJava(request.getParameter("parent"));
+        String code = StringEscapeUtils.escapeJava(request.getParameter("code"));
+        String newName = StringEscapeUtils.escapeJava(request.getParameter("newName"));
 
         // Instantiating a JsonObject for responses
         JsonObject jsonResponse = new JsonObject();
 
         // Checking if parameters have actually arrived correctly
-        if (name == null || parent == null || name.isEmpty() || parent.isEmpty()) {
+        if (code == null || newName == null || code.isEmpty() || newName.isEmpty()) {
             jsonResponse.addProperty("success", false);
             jsonResponse.addProperty("message", "Parameter missing");
             JsonResponse.sendJsonResponse(response, jsonResponse);
@@ -71,25 +70,21 @@ public class CreateCategory extends HttpServlet {
         }
 
         // Cleaning up parameter strings
-        name = name.trim();
-        parent = parent.trim();
+        code = code.trim();
+        newName = newName.trim();
 
-        boolean success = false;
+        boolean success;
         try {
-            // Checking if root has been selected as a parent
-            parent = parent.equals("/") ? "" : parent;
             CategoryDAO categoryDAO = new CategoryDAO(this.connection);
-            String code = categoryDAO.createNewCategory(parent, name);
-            if (code != null)
-                success = categoryDAO.doesCategoryExist(code);
+            success = categoryDAO.renameCategory(code, newName);
         } catch (SQLException ex) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while creating new category");
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while renaming category");
             return;
         }
 
         // Finally, wee send the outcome of the category creation
         jsonResponse.addProperty("success", success);
-        jsonResponse.addProperty("message", success ? "" : "Chosen parent is not parent-able");
+        jsonResponse.addProperty("message", success ? "" : "Chosen node doesn't exist");
         JsonResponse.sendJsonResponse(response, jsonResponse);
     }
 
@@ -103,4 +98,5 @@ public class CreateCategory extends HttpServlet {
             e.printStackTrace();
         }
     }
+
 }
