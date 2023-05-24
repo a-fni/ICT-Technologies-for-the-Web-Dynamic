@@ -36,7 +36,14 @@ public class CategoryDAO {
      */
     public LinkedList<Category> getFullCategoryTree() throws SQLException {
         // Selecting all categories, ordered by their code
-        String query = "SELECT code, name FROM tiw.category ORDER BY code";
+        String query = """
+                SELECT code, name, (
+                   SELECT COUNT(*)
+                   FROM tiw.category AS inner_category
+                   WHERE inner_category.code LIKE CONCAT(outer_category.code, "_")
+                ) < 9 AS parentable
+                FROM tiw.category AS outer_category ORDER BY code
+                """;
 
         // Setting up query and running it
         PreparedStatement pStatement = connection.prepareStatement(query);
@@ -52,6 +59,7 @@ public class CategoryDAO {
 
                 node.setCode(result.getString("code"));
                 node.setName(result.getString("name"));
+                node.setParentable(result.getBoolean("parentable"));
 
                 tree.add(node);
                 result.next();

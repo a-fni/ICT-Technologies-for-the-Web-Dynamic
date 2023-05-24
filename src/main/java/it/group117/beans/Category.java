@@ -12,6 +12,7 @@ public class Category implements Serializable {
 
     private String code;
     private String name;
+    private boolean parentable;
 
     /**
      * Category code getter method
@@ -47,5 +48,23 @@ public class Category implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Category name getter method
+     *
+     * @return if category is parent-able
+     */
+    public boolean getParentable() {
+        return parentable;
+    }
+
+    /**
+     * Category name setter method
+     *
+     * @param parentable if the category is parent-able or not
+     */
+    public void setParentable(boolean parentable) {
+        this.parentable = parentable;
     }
 }
