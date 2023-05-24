@@ -15,7 +15,7 @@ window.addEventListener("load", () => {
     console.log("Parsed response", data);
 
     if (data.success) {
-      sessionStorage.setItem("username", data.username);
+      localStorage.setItem("username", data.username);
       window.location.href = "home.html";
     } else {
       const error = document.querySelector("#error-message");

@@ -40,6 +40,7 @@
   <filter-mapping>
     <filter-name>LoginChecker</filter-name>
     <url-pattern>/home.html</url-pattern>
+    <url-pattern>/categories</url-pattern>
   </filter-mapping>
 
 </web-app>
