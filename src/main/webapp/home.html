@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Document setup -->
-    <script src="./home.js"></script>
+    <script src="./home.js" type="module"></script>
     <link rel="stylesheet" href="./style.css" />
     <title>Category manager</title>
   </head>
@@ -22,6 +22,32 @@
       <!-- END: Home page greeter -->
 
       <!-- Category creation form -->
+      <form id="createCategory" name="createCategory">
+        <label>
+          <b>Category name:</b>
+          <input
+            type="text"
+            placeholder="Enter category name"
+            name="name"
+            required
+          />
+        </label>
+        <br />
+
+        <label for="create-select">
+          <b>Category parent:</b>
+          <select
+            id="create-select"
+            name="parent"
+            form="createCategory"
+            required
+          >
+            <option value="">select parent</option>
+          </select>
+        </label>
+
+        <button type="submit">Create category</button>
+      </form>
       <!-- END: Category creation form -->
 
       <br />
@@ -30,7 +56,7 @@
       <!-- END: Category copying form -->
 
       <!-- Category tree -->
-      <table id="category-tree"></table>
+      <div id="category-tree"></div>
       <!-- END: Rendering category tree -->
 
       <!-- Logout button -->
