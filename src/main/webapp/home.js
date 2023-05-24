@@ -18,7 +18,8 @@ window.addEventListener("load", () => {
       body: new URLSearchParams(new FormData(createForm)),
     });
     const data = await res.json();
-    fetchCategories();
+    if (data.success) fetchCategories();
+    else alert(data.message);
     console.log("Parsed response", data);
   });
 });

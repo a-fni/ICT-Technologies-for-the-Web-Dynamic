@@ -74,12 +74,14 @@ public class CreateCategory extends HttpServlet {
         name = name.trim();
         parent = parent.trim();
 
-        boolean success;
+        boolean success = false;
         try {
             // Checking if root has been selected as a parent
             parent = parent.equals("/") ? "" : parent;
             CategoryDAO categoryDAO = new CategoryDAO(this.connection);
-            success = categoryDAO.createNewCategory(parent, name);
+            String code = categoryDAO.createNewCategory(parent, name);
+            if (code != null)
+                success = categoryDAO.doesCategoryExist(code);
         } catch (SQLException ex) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while creating new category");
             return;
@@ -87,7 +89,7 @@ public class CreateCategory extends HttpServlet {
 
         // Finally, wee send the outcome of the category creation
         jsonResponse.addProperty("success", success);
-        jsonResponse.addProperty("message", success ? "" : "Selected parent is not parent-able");
+        jsonResponse.addProperty("message", success ? "" : "Chosen parent is not parent-able");
         JsonResponse.sendJsonResponse(response, jsonResponse);
     }
 

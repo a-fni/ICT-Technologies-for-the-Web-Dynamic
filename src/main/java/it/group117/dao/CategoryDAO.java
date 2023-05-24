@@ -122,18 +122,18 @@ public class CategoryDAO {
      *
      * @param parentCode code of the parent node selected
      * @param name name of the new category to be added
-     * @return boolean value representing whether the operation is successful or not
+     * @return code of the added category, or null otherwise
      * @throws SQLException if the insertion fails
      */
-    public boolean createNewCategory(String parentCode, String name) throws SQLException {
+    public String createNewCategory(String parentCode, String name) throws SQLException {
         // Checking selected parent exists
         if (!doesCategoryExist(parentCode))
-            return false;
+            return null;
 
         // Checking selected parent has space for new category
         int lastChildIndex = getNumberOfDirectChildren(parentCode);
         if (lastChildIndex >= 9 || lastChildIndex == -1)
-            return false;
+            return null;
 
         // If there is space, we build the code for the new category
         String fullCode = parentCode + (lastChildIndex + 1);
@@ -146,8 +146,9 @@ public class CategoryDAO {
         pStatement.setString(1, fullCode);
         pStatement.setString(2, name);
 
-        // We simply return the outcome of the statement (returns true only in case of insertion)
-        return pStatement.execute();
+        // We simply return the full-code of the new category
+        pStatement.execute();
+        return fullCode;
     }
 
     /**
@@ -225,10 +226,10 @@ public class CategoryDAO {
      * @return whether the code exists
      * @throws SQLException if the query fails
      */
-    private boolean doesCategoryExist(String code) throws SQLException {
+    public boolean doesCategoryExist(String code) throws SQLException {
         // If we receive an empty code, we interpret it as the root node...
         // which always exists
-        if (code.isEmpty())
+        if (code == null || code.isEmpty())
             return true;
 
         // Query string
