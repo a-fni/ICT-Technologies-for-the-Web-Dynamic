@@ -35,9 +35,11 @@ public class LoginChecker implements Filter {
 
         HttpSession session = req.getSession();
         if (session.isNew() || session.getAttribute("user") == null) {
+            System.out.println("check failed!");
             res.sendRedirect(req.getServletContext().getContextPath());
             return;
         }
+        System.out.println("check passed!");
 
         // If login check is successful, we handle the request
         chain.doFilter(request, response);

@@ -51,6 +51,14 @@ public class CategoryDAO {
 
         // Checking that we didn't get an empty result
         LinkedList<Category> tree = new LinkedList<>();
+
+        // Manually adding the root to the linked-list
+        Category root = new Category();
+        root.setCode("");
+        root.setName("Root");
+        root.setParentable(getNumberOfDirectChildren("") < 9);
+        tree.add(root);
+
         if (result.isBeforeFirst()) {
             // Constructing our result linked-list
             result.next();

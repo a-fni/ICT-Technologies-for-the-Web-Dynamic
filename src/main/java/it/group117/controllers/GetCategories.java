@@ -6,11 +6,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
 import it.group117.beans.Category;
-import it.group117.beans.User;
 import it.group117.dao.CategoryDAO;
 import it.group117.utils.ConnectionHandler;
-import org.apache.commons.text.StringEscapeUtils;
+import it.group117.utils.JsonResponse;
 
 import java.io.IOException;
 import java.io.Serial;
@@ -38,7 +38,7 @@ public class GetCategories extends HttpServlet {
     /** @see HttpServlet#init() */
     @Override
     public void init() throws ServletException {
-        // Creating a DB connection and templating engine
+        // Creating a DB connection
         this.connection = ConnectionHandler.getConnection(getServletContext());
     }
 
@@ -48,32 +48,20 @@ public class GetCategories extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         // Fetch categories for tree
-        LinkedList<Category> tree, parentAble;
-        boolean rootParentAble;
+        LinkedList<Category> tree;
         try {
             CategoryDAO categoryDAO = new CategoryDAO(this.connection);
             tree = categoryDAO.getFullCategoryTree();
-            parentAble = categoryDAO.getParentAble();
-            rootParentAble = categoryDAO.getNumberOfDirectChildren("") < 9;
         } catch (SQLException ex) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Error while fetching category tree: " + ex);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while fetching category tree.");
             return;
         }
 
-        // Getting context from request and response
-        // final WebContext ctx = new WebContext(request, response, getServletContext(),
-        // request.getLocale());
-
-        // // Setting template variables
-        // ctx.setVariable("user", user);
-        // ctx.setVariable("tree", tree);
-        // ctx.setVariable("parentAble", parentAble);
-        // ctx.setVariable("rootParentAble", rootParentAble);
-        // ctx.setVariable("copySrc", src);
-        // templateEngine.process("/WEB-INF/home.html", ctx, response.getWriter());
+        // Building the JSON response
+        Gson gson = new Gson();
+        String jsonTree = gson.toJson(tree);
+        JsonResponse.sendJsonResponse(response, jsonTree);
     }
 
     /**
