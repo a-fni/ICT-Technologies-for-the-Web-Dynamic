@@ -74,7 +74,6 @@ public class CreateCategory extends HttpServlet {
         name = name.trim();
         parent = parent.trim();
 
-        // Checking if the parameters are empty
         boolean success;
         try {
             // Checking if root has been selected as a parent
@@ -86,7 +85,7 @@ public class CreateCategory extends HttpServlet {
             return;
         }
 
-        // Finally, wee send the outcome of the
+        // Finally, wee send the outcome of the category creation
         jsonResponse.addProperty("success", success);
         jsonResponse.addProperty("message", success ? "" : "Selected parent is not parent-able");
         JsonResponse.sendJsonResponse(response, jsonResponse);

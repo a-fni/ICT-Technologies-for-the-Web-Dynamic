@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.JsonObject;
 import it.group117.beans.User;
 import it.group117.dao.CategoryDAO;
 import it.group117.utils.ConnectionHandler;
+import it.group117.utils.JsonResponse;
 import org.apache.commons.text.StringEscapeUtils;
 
 
@@ -54,35 +56,37 @@ public class DoCopy extends HttpServlet {
     /** @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // Check if user is logged in
-        User user = (User) req.getSession().getAttribute("user");
-        if (user == null) {
-            resp.sendRedirect(getServletContext().getContextPath());
-            return;
-        }
-
         // Fetching form parameters
         String src = StringEscapeUtils.escapeJava(req.getParameter("src"));
         String dest = StringEscapeUtils.escapeJava(req.getParameter("dest"));
 
-        // Checking if parameters have actually arrived correctly
-        if (src != null && dest != null && !src.isEmpty() && !dest.isEmpty()) {
-            try {
-                // Checking if we are copying under root
-                dest = dest.equals("/") ? "" : dest;
+        // Instantiating a JsonObject for responses
+        JsonObject jsonResponse = new JsonObject();
 
-                CategoryDAO categoryDAO = new CategoryDAO(this.connection);
-                categoryDAO.copySubTree(src, dest);
-            } catch (SQLException ex) {
-                resp.sendError(
-                        HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                        "Error while copying tree: " + ex
-                );
-                return;
-            }
+        // Checking if parameters have actually arrived correctly
+        if (src == null || dest == null || src.isEmpty() || dest.isEmpty()) {
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "Parameter missing");
+            JsonResponse.sendJsonResponse(resp, jsonResponse);
+            return;
         }
 
-        resp.sendRedirect(getServletContext().getContextPath() + "/home");
+        boolean success;
+        try {
+            // Checking if we are copying under root
+            dest = dest.equals("/") ? "" : dest;
+
+            CategoryDAO categoryDAO = new CategoryDAO(this.connection);
+            success = categoryDAO.copySubTree(src, dest);
+        } catch (SQLException ex) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while copying tree");
+            return;
+        }
+
+        // Finally, wee send the outcome of the category duplication
+        jsonResponse.addProperty("success", success);
+        jsonResponse.addProperty("message", success ? "" : "Chosen node is not parent-able");
+        JsonResponse.sendJsonResponse(resp, jsonResponse);
     }
 
     /** @see HttpServlet#destroy() */

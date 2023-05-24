@@ -41,6 +41,8 @@
     <filter-name>LoginChecker</filter-name>
     <url-pattern>/home.html</url-pattern>
     <url-pattern>/categories</url-pattern>
+    <url-pattern>/createCategory</url-pattern>
+    <url-pattern>/doCopy</url-pattern>
   </filter-mapping>
 
 </web-app>
