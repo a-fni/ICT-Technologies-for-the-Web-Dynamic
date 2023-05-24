@@ -9,6 +9,7 @@
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
     <welcome-file>style.css</welcome-file>
+    <welcome-file>index.js</welcome-file>
   </welcome-file-list>
 
   <!-- Database connection information -->
