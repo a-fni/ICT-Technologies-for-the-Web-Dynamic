@@ -16,7 +16,7 @@
   <display-name>TIWProject</display-name>
   <context-param>
     <param-name>dbUrl</param-name>
-    <param-value>jdbc:mysql://localhost:3306/tiw</param-value>
+    <param-value>jdbc:mysql://host.docker.internal:3306/tiw</param-value>
   </context-param>
   <context-param>
     <param-name>dbUser</param-name>
