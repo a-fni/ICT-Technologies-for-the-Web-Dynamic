@@ -1,9 +1,11 @@
 package it.group117.controllers;
 
 
+import com.google.gson.JsonObject;
 import it.group117.beans.User;
 import it.group117.dao.CategoryDAO;
 import it.group117.utils.ConnectionHandler;
+import it.group117.utils.JsonResponse;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.servlet.ServletException;
@@ -53,43 +55,41 @@ public class CreateCategory extends HttpServlet {
     /** @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Check if user is logged in
-        User user = (User) request.getSession().getAttribute("user");
-        if (user == null) {
-            response.sendRedirect(getServletContext().getContextPath());
-            return;
-        }
-
         // Fetching form parameters
         String name = StringEscapeUtils.escapeJava(request.getParameter("name"));
         String parent = StringEscapeUtils.escapeJava(request.getParameter("parent"));
 
+        // Instantiating a JsonObject for responses
+        JsonObject jsonResponse = new JsonObject();
+
         // Checking if parameters have actually arrived correctly
-        if (name != null && parent != null) {
-            // Cleaning up parameter strings
-            name = name.trim();
-            parent = parent.trim();
-
-            // Checking if the parameters are empty
-            if (!name.isEmpty() && !parent.isEmpty()) {
-                try {
-                    // Checking if root has been selected as a parent
-                    parent = parent.equals("/") ? "" : parent;
-
-                    CategoryDAO categoryDAO = new CategoryDAO(this.connection);
-                    categoryDAO.createNewCategory(parent, name);
-                } catch (SQLException ex) {
-                    response.sendError(
-                            HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                            "Error while creating new category: " + ex
-                    );
-                    return;
-                }
-            }
+        if (name == null || parent == null || name.isEmpty() || parent.isEmpty()) {
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "Parameter missing");
+            JsonResponse.sendJsonResponse(response, jsonResponse);
+            return;
         }
 
-        // No matter what, at the end we redirect to the home page
-        response.sendRedirect(getServletContext().getContextPath() + "/home");
+        // Cleaning up parameter strings
+        name = name.trim();
+        parent = parent.trim();
+
+        // Checking if the parameters are empty
+        boolean success;
+        try {
+            // Checking if root has been selected as a parent
+            parent = parent.equals("/") ? "" : parent;
+            CategoryDAO categoryDAO = new CategoryDAO(this.connection);
+            success = categoryDAO.createNewCategory(parent, name);
+        } catch (SQLException ex) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while creating new category");
+            return;
+        }
+
+        // Finally, wee send the outcome of the
+        jsonResponse.addProperty("success", success);
+        jsonResponse.addProperty("message", success ? "" : "Selected parent is not parent-able");
+        JsonResponse.sendJsonResponse(response, jsonResponse);
     }
 
     /** @see HttpServlet#destroy() */
