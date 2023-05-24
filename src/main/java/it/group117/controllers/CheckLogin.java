@@ -96,8 +96,8 @@ public class CheckLogin extends HttpServlet {
 
         // If we reached this point, creating a session and redirecting user to home page
         request.getSession().setAttribute("user", user);
-        jsonResponse.addProperty("success", false);
-        jsonResponse.addProperty("message", "Wrong username or password");
+        jsonResponse.addProperty("success", true);
+        jsonResponse.addProperty("message", "");
         jsonResponse.addProperty("username", user.getUsername());
         JsonResponse.sendJsonResponse(response, jsonResponse);
     }
