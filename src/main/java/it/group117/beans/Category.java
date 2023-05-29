@@ -12,7 +12,7 @@ public class Category implements Serializable {
 
     private String code;
     private String name;
-    private boolean parentable;
+    private transient boolean parentable;
 
     /**
      * Category code getter method

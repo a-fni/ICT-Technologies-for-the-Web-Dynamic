@@ -27,6 +27,13 @@ window.addEventListener("load", () => {
     // We always reload the entire tree at the end
     void fetchCategories();
   });
+
+  // Logout handling
+  const logoutButton = document.querySelector("#logout-button");
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("username");
+    window.location.href = "logout";
+  });
 });
 
 
