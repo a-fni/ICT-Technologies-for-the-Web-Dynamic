@@ -155,10 +155,10 @@ export function createDivFromSubtree(subtree, tree) {
   });
 
   // Get the children...
+  const filtercode = subtree.code.replace(/\//g, ""); // handle root being "/"
   const children = tree.filter(
     s =>
-      s.code.startsWith(subtree.code) &&
-      s.code.length === subtree.code.length + 1
+      s.code.startsWith(filtercode) && s.code.length === filtercode.length + 1
   );
 
   // ...and recursively add them to the current node's div
