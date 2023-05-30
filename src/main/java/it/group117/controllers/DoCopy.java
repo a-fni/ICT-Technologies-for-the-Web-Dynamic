@@ -56,7 +56,7 @@ public class DoCopy extends HttpServlet {
     /** @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        // Fetching form parameters
+        // Fetching parameters
         String src = StringEscapeUtils.escapeJava(req.getParameter("src"));
         String dest = StringEscapeUtils.escapeJava(req.getParameter("dest"));
 
@@ -71,13 +71,16 @@ public class DoCopy extends HttpServlet {
             return;
         }
 
-        boolean success;
+        boolean success = false;
         try {
             // Checking if we are copying under root
+            src = src.equals("/") ? "" : src;
             dest = dest.equals("/") ? "" : dest;
 
             CategoryDAO categoryDAO = new CategoryDAO(this.connection);
-            success = categoryDAO.copySubTree(src, dest);
+            String fullCode = categoryDAO.copySubTree(src, dest);
+            if (fullCode != null)
+                success = categoryDAO.doesCategoryExist(fullCode);
         } catch (SQLException ex) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while copying tree");
             return;
