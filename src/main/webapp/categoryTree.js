@@ -1,13 +1,19 @@
-import { fetchCategories } from "./home.js";
-
+// Global variable in charge of signalling when a copy is in progress
 let isCloningCategory = false;
+
+// Global object in charge of storing copying information
+let copyInfo = {
+  src: null,
+  dest: null,
+}
+
 
 /**
  * Creates the category tree and appends it to the DOM
  *
  * @param {Category[]} data all the data as an array of categories
  */
-export function createCategoryTree(data) {
+function createCategoryTree(data) {
   const root = document.querySelector("#category-tree");
 
   // Removing any previous category tree first
@@ -92,6 +98,14 @@ export function createDivFromSubtree(subtree, tree) {
         });
         clone.classList.add("cloned");
         event.currentTarget.appendChild(clone);
+
+        // Showing cancel-save buttons
+        document.querySelector(".copy-buttons").style.display = "flex";
+        document.querySelector("#create-category-button").disabled = true;
+
+        // Setting copying variables
+        copyInfo.src = draggedCode || "/";
+        copyInfo.dest = subtree.code || "/";
         isCloningCategory = true;
       }
     },
@@ -146,6 +160,13 @@ export function createDivFromSubtree(subtree, tree) {
       alert("Cannot rename category while cloning another one");
       return;
     }
+
+    // Root can never be renamed
+    if (!subtree.code) {
+      alert("Cannot rename the root of the tree!");
+      return;
+    }
+
     nameSpan.style.display = "none";
     newName.style.display = "inline";
     newName.focus();
@@ -212,3 +233,75 @@ async function renameCategory(nodeDiv) {
     newName.value = currentName.innerText.trim();
   }
 }
+
+
+/**
+ * Fetches asynchronously the ful category-tree and renders it
+ * @returns {Promise<void>} async call Promise
+ */
+export async function fetchCategories() {
+  // fetch the categories on load
+  const res = await fetch("categories");
+
+  // Handling response
+  if (!res.ok) {
+    alert("Something went wrong while fetching categories... retry later");
+    return;
+  }
+
+  /** @type {Category[]} */
+  const data = await res.json();
+  // console.log("Parsed response", data);  // DEBUG ONLY
+  createCategoryTree(data);
+
+  // Populating create form parent-select
+  const parentables = data.filter(c => c.parentable);
+  const parentSelect = document.querySelector("#create-select");
+  parentSelect.innerHTML = parentables
+      .map(c => `<option value="${c.code || "/"}">${c.name}</option> `)
+      .join("");
+}
+
+window.addEventListener("load", () => {
+  // Cancel copy handling
+  const cancelButton = document.querySelector("#cancel-button");
+  cancelButton.addEventListener("click", () => {
+    // Hiding cancel-save buttons
+    document.querySelector(".copy-buttons").style.display = "none";
+    document.querySelector("#create-category-button").disabled = false;
+    // Resetting copying variables
+    copyInfo.src = copyInfo.dest = null;
+    isCloningCategory = false;
+
+    // Fetching updated app state
+    void fetchCategories();
+  });
+
+  // Save copy handling
+  const saveButton = document.querySelector("#save-button");
+  saveButton.addEventListener("click", async () => {
+    if (copyInfo.src && copyInfo.dest) {
+      const res = await fetch("doCopy", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `src=${copyInfo.src}&dest=${copyInfo.dest}`
+      });
+
+      const data = await res.json();
+      if (!data.success) alert(data.message);
+
+      // Hiding cancel-save buttons
+      document.querySelector(".copy-buttons").style.display = "none";
+      document.querySelector("#create-category-button").disabled = false;
+
+      // Resetting copying variables
+      copyInfo.src = copyInfo.dest = null;
+      isCloningCategory = false;
+
+      // Fetching updated app state
+      void fetchCategories();
+    }
+  });
+});
