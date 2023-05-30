@@ -150,10 +150,6 @@ public class CategoryDAO {
         if (!doesCategoryExist(targetSubtreeRoot) || !doesCategoryExist(destinationParentRoot))
             return null;
 
-        // Checking that the destination node isn't inside the target sub-tree
-        if (destinationParentRoot.startsWith(targetSubtreeRoot))
-            return null;
-
         // Checking selected node has space for new child
         int lastChildIndex = getNumberOfDirectChildren(destinationParentRoot);
         if (lastChildIndex >= 9 || lastChildIndex == -1)
