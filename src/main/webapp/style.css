@@ -91,6 +91,15 @@ a.button:hover {
   margin: 0;
 }
 
+#create-category-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+#create-category-button:disabled:hover {
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
+}
+
 .category {
   padding-left: 8px;
   border-left: 1px solid black;
