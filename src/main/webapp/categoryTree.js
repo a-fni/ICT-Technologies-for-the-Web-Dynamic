@@ -23,6 +23,7 @@ function createCategoryTree(data) {
   root.appendChild(createDivFromSubtree(data[0], data));
 }
 
+
 /**
  * Creates a div from a subtree
  *
@@ -34,25 +35,20 @@ export function createDivFromSubtree(subtree, tree) {
   // Create the node's div
   const div = document.createElement("div");
   div.classList.add("category");
-
   div.id = subtree.code;
 
+  // Adding drag&drop capability
   div.draggable = "true";
-  div.addEventListener(
-    "dragstart",
-    event => {
-      if (isCloningCategory) {
-        event.preventDefault();
-      } else {
-        event.stopPropagation();
-        console.log(`started dragging ${subtree.code}`);
-        event.dataTransfer.setData("text/plain", subtree.code);
-      }
-    },
-    {
-      capture: false,
+  div.addEventListener("dragstart", event => {
+    // Preventing copying if another copy has been made
+    if (isCloningCategory) {
+      event.preventDefault();
+    } else {
+      event.stopPropagation();
+      // console.log(`started dragging ${subtree.code}`);  // DEBUG ONLY
+      event.dataTransfer.setData("text/plain", subtree.code);
     }
-  );
+  });
   div.addEventListener("dragover", event => {
     event.preventDefault();
     event.stopPropagation();
@@ -63,56 +59,53 @@ export function createDivFromSubtree(subtree, tree) {
     event.stopPropagation();
     div.classList.remove("dragover");
   });
-  div.addEventListener(
-    "drop",
-    event => {
-      event.preventDefault();
-      event.stopPropagation();
+  div.addEventListener("drop", event => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      if (isCloningCategory) return;
-      if (!subtree.parentable) {
-        alert(`Category ${subtree.code} cannot have any more children`);
-        return;
-      }
-
-      // if parentable clone the tree
-      // get the code
-      const draggedCode = event.dataTransfer.getData("text/plain");
-      console.log(`dropped ${draggedCode} on ${subtree.code}`);
-
-      const confirmed = confirm(
-        `Do you want to clone the category ${draggedCode} into ${subtree.name} (${subtree.code})?`
-      );
-
-      if (!confirmed) {
-        return;
-      }
-
-      const draggedDiv = document.getElementById(draggedCode);
-      if (draggedDiv) {
-        // clone the node
-        const clone = draggedDiv.cloneNode(true);
-        // change the code span text
-        clone.querySelectorAll(".category-name").forEach(e => {
-          e.innerText = "* - ";
-        });
-        clone.classList.add("cloned");
-        event.currentTarget.appendChild(clone);
-
-        // Showing cancel-save buttons
-        document.querySelector(".copy-buttons").style.display = "flex";
-        document.querySelector("#create-category-button").disabled = true;
-
-        // Setting copying variables
-        copyInfo.src = draggedCode || "/";
-        copyInfo.dest = subtree.code || "/";
-        isCloningCategory = true;
-      }
-    },
-    {
-      capture: false,
+    // Checking if cloning is already in progress and whether choosen
+    // destination node is parent-able
+    if (isCloningCategory) return;
+    if (!subtree.parentable) {
+      alert(`Category ${subtree.code} cannot have any more children`);
+      return;
     }
-  );
+
+    // if parentable clone the tree
+    // get the code
+    const draggedCode = event.dataTransfer.getData("text/plain");
+    // console.log(`dropped ${draggedCode} on ${subtree.code}`);  // DEBUG ONLY
+
+    const confirmed = confirm(
+      `Do you want to clone the category ${draggedCode} into ${subtree.name} (${subtree.code})?`
+    );
+
+    if (!confirmed) {
+      div.classList.remove("dragover");
+      return;
+    }
+
+    const draggedDiv = document.getElementById(draggedCode);
+    if (draggedDiv) {
+      // clone the node
+      const clone = draggedDiv.cloneNode(true);
+      // change the code span text
+      clone.querySelectorAll(".category-name").forEach(e => {
+        e.innerText = "* - ";
+      });
+      clone.classList.add("cloned");
+      event.currentTarget.appendChild(clone);
+
+      // Showing cancel-save buttons
+      document.querySelector(".copy-buttons").style.display = "flex";
+      document.querySelector("#create-category-button").disabled = true;
+
+      // Setting copying variables
+      copyInfo.src = draggedCode || "/";
+      copyInfo.dest = subtree.code || "/";
+      isCloningCategory = true;
+    }
+  });
 
   // Create the code and name spans
   const codeSpan = document.createElement("span");
@@ -190,6 +183,7 @@ export function createDivFromSubtree(subtree, tree) {
   return div;
 }
 
+
 /**
  * Sends async request to rename a category, then redraws full category tree
  * @param {HTMLDivElement} nodeDiv div associated with the category we want to rename
@@ -261,6 +255,7 @@ export async function fetchCategories() {
       .map(c => `<option value="${c.code || "/"}">${c.name}</option> `)
       .join("");
 }
+
 
 window.addEventListener("load", () => {
   // Cancel copy handling
