@@ -83,7 +83,7 @@ export function createDivFromSubtree(subtree, tree) {
         clone.querySelectorAll(".category-name").forEach(e => {
           e.innerText = "* - ";
         });
-        event.target.appendChild(clone);
+        event.currentTarget.appendChild(clone);
         isCloningCategory = true;
       }
     },
