@@ -105,3 +105,13 @@ a.button:hover {
   border-left: 1px solid black;
   position: relative;
 }
+
+.cloned {
+  background-color: #f4ca8f;
+  border-left: 1px solid red;
+}
+
+.dragover {
+  border: 1px dashed black;
+  background-color: #ccc5;
+}

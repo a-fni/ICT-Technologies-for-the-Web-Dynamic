@@ -49,6 +49,13 @@ export function createDivFromSubtree(subtree, tree) {
   );
   div.addEventListener("dragover", event => {
     event.preventDefault();
+    event.stopPropagation();
+    div.classList.add("dragover");
+  });
+  div.addEventListener("dragleave", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    div.classList.remove("dragover");
   });
   div.addEventListener(
     "drop",
@@ -83,6 +90,7 @@ export function createDivFromSubtree(subtree, tree) {
         clone.querySelectorAll(".category-name").forEach(e => {
           e.innerText = "* - ";
         });
+        clone.classList.add("cloned");
         event.currentTarget.appendChild(clone);
         isCloningCategory = true;
       }
