@@ -1,4 +1,4 @@
-import {createCategoryTree} from "./categoryTree.js";
+import {fetchCategories} from "./categoryTree.js";
 
 
 window.addEventListener("load", () => {
@@ -35,34 +35,6 @@ window.addEventListener("load", () => {
     window.location.href = "logout";
   });
 });
-
-
-/**
- * Fetches asynchronously the ful category-tree and renders it
- * @returns {Promise<void>} async call Promise
- */
-export async function fetchCategories() {
-  // fetch the categories on load
-  const res = await fetch("categories");
-
-  // Handling response
-  if (!res.ok) {
-    alert("Something went wrong while fetching categories... retry later");
-    return;
-  }
-
-  /** @type {Category[]} */
-  const data = await res.json();
-  // console.log("Parsed response", data);  // DEBUG ONLY
-  createCategoryTree(data);
-
-  // Populating create form parent-select
-  const parentables = data.filter(c => c.parentable);
-  const parentSelect = document.querySelector("#create-select");
-  parentSelect.innerHTML = parentables
-    .map(c => `<option value="${c.code || "/"}">${c.name}</option> `)
-    .join("");
-}
 
 
 window.addEventListener("load", () => {

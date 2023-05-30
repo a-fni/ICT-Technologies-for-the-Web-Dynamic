@@ -142,22 +142,18 @@ public class CategoryDAO {
      *
      * @param targetSubtreeRoot root of the subtree to be copied
      * @param destinationParentRoot destination node, under which we will copy
-     * @return boolean representing whether the operation is successful of not
+     * @return full code of the newly added root
      * @throws SQLException if the insertion fails
      */
-    public boolean copySubTree(String targetSubtreeRoot, String destinationParentRoot) throws SQLException {
+    public String copySubTree(String targetSubtreeRoot, String destinationParentRoot) throws SQLException {
         // Checking selected nodes exists
         if (!doesCategoryExist(targetSubtreeRoot) || !doesCategoryExist(destinationParentRoot))
-            return false;
-
-        // Checking that the destination node isn't inside the target sub-tree
-        if (destinationParentRoot.startsWith(targetSubtreeRoot))
-            return false;
+            return null;
 
         // Checking selected node has space for new child
         int lastChildIndex = getNumberOfDirectChildren(destinationParentRoot);
         if (lastChildIndex >= 9 || lastChildIndex == -1)
-            return false;
+            return null;
 
         // If there is space, we build the code for the new category
         String fullCode = destinationParentRoot + (lastChildIndex + 1);
@@ -176,8 +172,9 @@ public class CategoryDAO {
         pStatement.setString(3, targetSubtreeRoot);
         pStatement.setString(4, targetSubtreeRoot);
 
-        // We simply return the outcome of the statement (returns true only in case of insertion)
-        return pStatement.execute();
+        // We simply execute the insertion and return the full code of the just created root
+        pStatement.execute();
+        return fullCode;
     }
 
     /**
