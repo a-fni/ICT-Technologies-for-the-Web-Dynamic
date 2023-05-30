@@ -134,6 +134,10 @@ export function createDivFromSubtree(subtree, tree) {
 
   // Adding on-click editing functionality
   nameSpan.addEventListener("click", () => {
+    if (isCloningCategory) {
+      alert("Cannot rename category while cloning another one");
+      return;
+    }
     nameSpan.style.display = "none";
     newName.style.display = "inline";
     newName.focus();
