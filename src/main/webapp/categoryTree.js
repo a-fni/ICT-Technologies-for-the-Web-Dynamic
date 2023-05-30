@@ -1,5 +1,6 @@
-import {fetchCategories} from "./home.js";
+import { fetchCategories } from "./home.js";
 
+let isCloningCategory = false;
 
 /**
  * Creates the category tree and appends it to the DOM
@@ -16,7 +17,6 @@ export function createCategoryTree(data) {
   root.appendChild(createDivFromSubtree(data[0], data));
 }
 
-
 /**
  * Creates a div from a subtree
  *
@@ -28,6 +28,69 @@ export function createDivFromSubtree(subtree, tree) {
   // Create the node's div
   const div = document.createElement("div");
   div.classList.add("category");
+
+  div.id = subtree.code;
+
+  div.draggable = "true";
+  div.addEventListener(
+    "dragstart",
+    event => {
+      if (isCloningCategory) {
+        event.preventDefault();
+      } else {
+        event.stopPropagation();
+        console.log(`started dragging ${subtree.code}`);
+        event.dataTransfer.setData("text/plain", subtree.code);
+      }
+    },
+    {
+      capture: false,
+    }
+  );
+  div.addEventListener("dragover", event => {
+    event.preventDefault();
+  });
+  div.addEventListener(
+    "drop",
+    event => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (isCloningCategory) return;
+      if (!subtree.parentable) {
+        alert(`Category ${subtree.code} cannot have any more children`);
+        return;
+      }
+
+      // if parentable clone the tree
+      // get the code
+      const draggedCode = event.dataTransfer.getData("text/plain");
+      console.log(`dropped ${draggedCode} on ${subtree.code}`);
+
+      const confirmed = confirm(
+        `Do you want to clone the category ${draggedCode} into ${subtree.name} (${subtree.code})?`
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      const draggedDiv = document.getElementById(draggedCode);
+      if (draggedDiv) {
+        // clone the node
+        const clone = draggedDiv.cloneNode(true);
+        // change the code span text
+        clone.querySelectorAll(".category-name").forEach(e => {
+          e.innerText = "* - ";
+        });
+        event.target.appendChild(clone);
+        isCloningCategory = true;
+      }
+    },
+    {
+      capture: false,
+    }
+  );
 
   // Create the code and name spans
   const codeSpan = document.createElement("span");
@@ -63,19 +126,21 @@ export function createDivFromSubtree(subtree, tree) {
   newName.style.display = "none";
 
   // Constructing DOM
-  codeSpan.appendChild(nameSpan);
   renameForm.appendChild(code);
   renameForm.appendChild(newName);
-  div.appendChild(codeSpan)
+  div.appendChild(codeSpan);
+  div.appendChild(nameSpan);
   div.appendChild(renameForm);
 
   // Adding on-click editing functionality
-  codeSpan.addEventListener("click", () => {
-    codeSpan.style.display = "none";
-    newName.style.display = "block";
+  nameSpan.addEventListener("click", () => {
+    nameSpan.style.display = "none";
+    newName.style.display = "inline";
     newName.focus();
   });
-  newName.addEventListener("blur", () => { void renameCategory(div); });
+  newName.addEventListener("blur", () => {
+    void renameCategory(div);
+  });
 
   // Get the children...
   const children = tree.filter(
@@ -92,21 +157,19 @@ export function createDivFromSubtree(subtree, tree) {
   return div;
 }
 
-
 /**
  * Sends async request to rename a category, then redraws full category tree
- * @param nodeDiv div associated with the category we want to rename
+ * @param {HTMLDivElement} nodeDiv div associated with the category we want to rename
  * @returns {Promise<void>} async call Promise
  */
 async function renameCategory(nodeDiv) {
   // Fetching the the form, the spans and the new-name input
   const renameForm = nodeDiv.querySelector(".rename-form");
-  const codeSpan = nodeDiv.querySelector(".category-name");
   const currentName = nodeDiv.querySelector(".current-name");
   const newName = nodeDiv.querySelector(".new-name");
 
   // Disabling editing
-  codeSpan.style.display = "block";
+  currentName.style.display = "inline";
   newName.style.display = "none";
 
   // Cleaning input
@@ -123,7 +186,7 @@ async function renameCategory(nodeDiv) {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams(new FormData(renameForm))
+      body: new URLSearchParams(new FormData(renameForm)),
     });
 
     // Handling response
@@ -136,5 +199,4 @@ async function renameCategory(nodeDiv) {
     // If the input was empty, reset it's value...
     newName.value = currentName.innerText.trim();
   }
-
 }
