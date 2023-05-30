@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
-import it.group117.beans.User;
 import it.group117.dao.CategoryDAO;
 import it.group117.utils.ConnectionHandler;
 import it.group117.utils.JsonResponse;
@@ -71,10 +70,16 @@ public class DoCopy extends HttpServlet {
             return;
         }
 
+        if (src.equals("/")) {
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "Can't clone root of tree");
+            JsonResponse.sendJsonResponse(resp, jsonResponse);
+            return;
+        }
+
         boolean success = false;
         try {
             // Checking if we are copying under root
-            src = src.equals("/") ? "" : src;
             dest = dest.equals("/") ? "" : dest;
 
             CategoryDAO categoryDAO = new CategoryDAO(this.connection);

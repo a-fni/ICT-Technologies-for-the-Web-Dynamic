@@ -38,7 +38,7 @@ export function createDivFromSubtree(subtree, tree) {
   div.id = subtree.code;
 
   // Adding drag&drop capability
-  div.draggable = "true";
+  div.draggable = subtree.code !== "/";
   div.addEventListener("dragstart", event => {
     // Preventing copying if another copy has been made
     if (isCloningCategory) {
@@ -171,8 +171,10 @@ export function createDivFromSubtree(subtree, tree) {
   // Get the children...
   const filtercode = subtree.code.replace(/\//g, ""); // handle root being "/"
   const children = tree.filter(
-    s =>
-      s.code.startsWith(filtercode) && s.code.length === filtercode.length + 1
+    s => {
+      const scode = s.code.replace(/\//g, "");
+      return scode.startsWith(filtercode) && scode.length === filtercode.length + 1
+    }
   );
 
   // ...and recursively add them to the current node's div

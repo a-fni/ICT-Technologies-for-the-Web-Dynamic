@@ -54,7 +54,7 @@ public class CategoryDAO {
 
         // Manually adding the root to the linked-list
         Category root = new Category();
-        root.setCode("");
+        root.setCode("/");
         root.setName("Root");
         root.setParentable(getNumberOfDirectChildren("") < 9);
         tree.add(root);
