@@ -20,10 +20,10 @@ INSERT INTO tiw.category (code, name) VALUES
 	("1121", "Piastrelle"),
 	("1122", "Sanitari"),
 	("12", "Materiali ferrosi"),
-	("13", "Materiali ferrosi"),
-	("14", "Materiali ferrosi"),
-	("15", "Materiali ferrosi"),
-	("16", "Materiali ferrosi"),
-	("17", "Materiali ferrosi"),
-	("18", "Materiali ferrosi"),
-	("19", "Materiali ferrosi");
+	("13", "Materiali Liquidi"),
+	("14", "Materiali Acidi"),
+	("15", "Materiali Calcarei"),
+	("16", "Materiali Basici"),
+	("17", "Materiali Basati"),
+	("18", "Materiali Legittimi"),
+	("19", "Materiali Cringe");
