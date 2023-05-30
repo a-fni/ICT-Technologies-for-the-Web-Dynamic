@@ -80,8 +80,13 @@ a.button:hover {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-#save-button {
+.copy-buttons {
   display: none;
+  justify-content: stretch;
+  gap: 12px;
+}
+.copy-buttons button {
+  flex: 1;
 }
 
 .rename-form {
