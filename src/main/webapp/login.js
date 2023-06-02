@@ -12,6 +12,12 @@ window.addEventListener("load", () => {
       body: new URLSearchParams(new FormData(loginForm)),
     });
 
+    // Checking response status is 200
+    if (!res.ok) {
+      alert(`An error ${res.status} was returned from the server.`);
+      return;
+    }
+
     // Handling response
     const data = await res.json();
     // console.log("Parsed response", data);  // DEBUG ONLY
