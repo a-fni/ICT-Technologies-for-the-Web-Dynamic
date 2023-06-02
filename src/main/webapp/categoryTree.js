@@ -155,7 +155,7 @@ export function createDivFromSubtree(subtree, tree) {
     }
 
     // Root can never be renamed
-    if (!subtree.code) {
+    if (subtree.code === "/") {
       alert("Cannot rename the root of the tree!");
       return;
     }

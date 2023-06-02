@@ -81,7 +81,13 @@ public class CheckLogin extends HttpServlet {
             UserDAO userDao = new UserDAO(this.connection);
             user = userDao.checkCredentials(username, password);
         } catch (SQLException ex) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while checking credentials.");
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty(
+                    "message",
+                    "An internal server error occurred while trying to check credentials. Retry later"
+            );
+            jsonResponse.addProperty("username", "");
+            JsonResponse.sendJsonResponse(response, jsonResponse);
             return;
         }
 

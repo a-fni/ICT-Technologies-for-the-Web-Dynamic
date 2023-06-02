@@ -73,12 +73,22 @@ public class RenameCategory  extends HttpServlet {
         code = code.trim();
         newName = newName.trim();
 
+        // Checking if trying to rename root of sub-tre
+        if (code.equals("/")) {
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "Can't rename root of tree!");
+            JsonResponse.sendJsonResponse(response, jsonResponse);
+            return;
+        }
+
         boolean success;
         try {
             CategoryDAO categoryDAO = new CategoryDAO(this.connection);
             success = categoryDAO.renameCategory(code, newName);
         } catch (SQLException ex) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while renaming category");
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "An internal server error occurred while trying to create category. Retry later...");
+            JsonResponse.sendJsonResponse(response, jsonResponse);
             return;
         }
 

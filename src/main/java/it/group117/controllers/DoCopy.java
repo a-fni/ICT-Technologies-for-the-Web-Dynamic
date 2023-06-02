@@ -87,7 +87,9 @@ public class DoCopy extends HttpServlet {
             if (fullCode != null)
                 success = categoryDAO.doesCategoryExist(fullCode);
         } catch (SQLException ex) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error while copying tree");
+            jsonResponse.addProperty("success", false);
+            jsonResponse.addProperty("message", "An internal server error occurred while trying to copy sub-tree. Retry later...");
+            JsonResponse.sendJsonResponse(resp, jsonResponse);
             return;
         }
 
