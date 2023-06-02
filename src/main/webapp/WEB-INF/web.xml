@@ -31,6 +31,18 @@
     <param-value>com.mysql.cj.jdbc.Driver</param-value>
   </context-param>
 
+
+  <!-- Static files no-caching -->
+  <filter>
+    <filter-name>NoCacher</filter-name>
+    <filter-class>it.group117.filters.NoCacher</filter-class>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>NoCacher</filter-name>
+    <url-pattern>/home.html</url-pattern>
+  </filter-mapping>
+
   <!-- Login checking login & servlet login filtering -->
   <filter>
     <filter-name>LoginChecker</filter-name>
