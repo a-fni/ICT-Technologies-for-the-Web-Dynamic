@@ -5,6 +5,7 @@ TRUNCATE tiw.category;
 
 -- Primary root user
 INSERT INTO tiw.`user` (username, password) VALUES ("admin", "abc123");
+INSERT INTO tiw.`user` (username, password) VALUES ("user", "password");
 
 
 -- Inserting some categories
@@ -19,7 +20,7 @@ INSERT INTO tiw.category (code, name) VALUES
 	("112", "Inerti ceramici"),
 	("1121", "Piastrelle"),
 	("1122", "Sanitari"),
-	("12", "Materiali ferrosi"),
+	("12", "Materiali Ferrosi"),
 	("13", "Materiali Liquidi"),
 	("14", "Materiali Acidi"),
 	("15", "Materiali Calcarei"),

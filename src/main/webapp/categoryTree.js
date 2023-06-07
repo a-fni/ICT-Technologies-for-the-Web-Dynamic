@@ -31,7 +31,7 @@ function createCategoryTree(data) {
  * @param {Category[]} tree
  * @returns {HTMLDivElement} the div with the subtree
  */
-export function createDivFromSubtree(subtree, tree) {
+function createDivFromSubtree(subtree, tree) {
   // Create the node's div
   const div = document.createElement("div");
   div.classList.add("category");
