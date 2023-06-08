@@ -18,10 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import it.group117.utils.JsonResponse;
-import it.group117.utils.TemplateHandler;
 import org.apache.commons.text.StringEscapeUtils;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.WebContext;
 
 /**
  * Servlet implementation class Login
